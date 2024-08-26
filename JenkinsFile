@@ -1,25 +1,25 @@
 pipeline {
-    agent any 
-    
-    tools {
-        maven 'maven'
+  agent { label 'master' }
+  
+  tools {
+    maven 'maven'
+  }
+  
+  stages {
+    stage('scm') {
+      steps {
+        echo "Cloning the repo"
+        git branch: 'main', url: 'https://github.com/Arsenet7/carles-project'
+      }
     }
     
-    stages {
-        stage('SCM') {
-            steps {
-                echo "Cloning the repo"
-                git branch: 'main', url: 'https://github.com/Arsenet7/carles-project'
-            }
-        }
-        
-        stage('Build & Test') {
-            steps {
-                sh ''' 
-                java --version
-                mvn clean package
-                '''
-            }
-        }
+    stage('build&test') {
+      steps {
+        sh ''' 
+        java --version
+        mvn clean package
+        '''
+      }
     }
+  }
 }
