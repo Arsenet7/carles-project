@@ -1,23 +1,40 @@
 pipeline {
-  agent any
-  tools {
-    maven 'maven'
-  }
-  stages {
-    stage ('scm') {
-      steps {
-        echo "clonning the repo"
-        git branch: 'main', url: 'https://github.com/Angecalais97/carles-project'
-      }
+    agent any
+
+    environment {
+        GIT_REPO = 'https://github.com/Arsenet7/carles-project.git'
+        BRANCH_NAME = 'arsene'  // Updated branch name
     }
-    stage ('build&test') {
-      steps {
-        sh ''' 
-        java --version
-        mvn clean package
-        '''
-        
-      }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Cloning the GitHub repository
+                git branch: "${BRANCH_NAME}", url: "${GIT_REPO}"
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                // Building and testing the Java project
+                sh '''
+                mvn --version
+                mvnw clean package
+                '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('let-do-it') {  // SonarQube scanner name in Jenkins configuration
+                    sh '''
+                    mvn sonar:sonar \
+                      -Dsonar.projectKey=ca-project \
+                      -Dsonar.host.url=https://sonarqube.devopseasylearning.uk \
+                      -Dsonar.login=$SONARQUBE_TOKEN
+                    '''
+                }
+            }
+        }
     }
-  }
 }
