@@ -35,7 +35,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('scan') {  // Use the SonarQube scanner name in Jenkins configuration
+                withSonarQubeEnv('let-do-it') {  // Use the SonarQube scanner name in Jenkins configuration
                     sh '''
                     mvn sonar:sonar \
                       -Dsonar.projectKey=carl-project \
