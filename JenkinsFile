@@ -5,7 +5,8 @@ pipeline {
 
     environment {
         GIT_REPO = 'https://github.com/Arsenet7/carles-project.git'
-        BRANCH_NAME = 'main'  // Updated branch name
+        BRANCH_NAME = 'main'  // Branch to check out
+        SONARQUBE_TOKEN = credentials('arsene-sonar-token') // SonarQube credentials
     }
 
     stages {
@@ -17,29 +18,47 @@ pipeline {
         }
 
         stage('Build and Test') {
+            agent {
+                docker {
+                    image 'maven:3.8.5-openjdk-18' // Use a Maven Docker image with JDK 18
+                    args '-u root' // Run as root if needed
+                }
+            }
             steps {
                 // Building and testing the Java project
                 sh '''
                 mvn --version
-                mvnw clean package
+                mvn clean package
                 '''
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('scan') {  // Updated SonarQube scanner name in Jenkins configuration
+                withSonarQubeEnv('scan') {  // Use the SonarQube scanner name in Jenkins configuration
                     sh '''
                     mvn sonar:sonar \
                       -Dsonar.projectKey=carl-project \
                       -Dsonar.host.url=https://sonarqube.devopseasylearning.uk \
-                      -Dsonar.login=$SONARQUBE_TOKEN
+                      -Dsonar.login=${SONARQUBE_TOKEN}
                     '''
                 }
             }
-            environment {
-                SONARQUBE_TOKEN = credentials('arsene-sonar-token') // Using the correct SonarQube token credentials
-            }
+        }
+    }
+
+    post {
+        always {
+            echo 'This will run after every build, regardless of the build result'
+        }
+        success {
+            echo 'Build succeeded!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+        unstable {
+            echo 'Build is unstable!'
         }
     }
 }
