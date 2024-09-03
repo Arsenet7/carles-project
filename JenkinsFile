@@ -29,7 +29,7 @@ pipeline {
                 withSonarQubeEnv('scan') {  // SonarQube scanner name in Jenkins configuration
                     sh '''
                     mvn sonar:sonar \
-                      -Dsonar.projectKey=ca-project \
+                      -Dsonar.projectKey=carl-project \
                       -Dsonar.host.url=https://sonarqube.devopseasylearning.uk \
                       -Dsonar.login=$SONARQUBE_TOKEN
                     '''
