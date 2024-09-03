@@ -16,10 +16,14 @@ pipeline {
 
         stage('Build and Test') {
             steps {
-                sh '''
-                mvn --version
-                mvn clean package
-                '''
+                script {
+                    docker.image('maven:3.8.5-openjdk-18').inside {
+                        sh '''
+                        mvn --version
+                        mvn clean package
+                        '''
+                    }
+                }
             }
         }
 
