@@ -1,31 +1,21 @@
 pipeline {
     agent {
-        label 'master' // Ensure the 'master' node is available and correctly labeled
+        label 'master' // Use the master agent for the entire pipeline
     }
 
     environment {
-        GIT_REPO = 'https://github.com/Arsenet7/carles-project.git'
-        BRANCH_NAME = 'main'  // Branch to check out
-        SONARQUBE_TOKEN = credentials('arsene-sonar-token') // SonarQube credentials
+        SONARQUBE_TOKEN = credentials('arsene-sonar-token') // SonarQube token credentials
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                // Cloning the GitHub repository
-                git branch: "${BRANCH_NAME}", url: "${GIT_REPO}"
+                git url: 'https://github.com/Arsenet7/carles-project.git', branch: 'main'
             }
         }
 
         stage('Build and Test') {
-            agent {
-                docker {
-                    image 'maven:3.8.5-openjdk-18' // Use a Maven Docker image with JDK 18
-                    args '-u root' // Run as root if needed
-                }
-            }
             steps {
-                // Building and testing the Java project
                 sh '''
                 mvn --version
                 mvn clean package
@@ -35,30 +25,17 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('let-do-it') {  // Use the SonarQube scanner name in Jenkins configuration
-                    sh '''
-                    mvn sonar:sonar \
-                      -Dsonar.projectKey=carl-project \
-                      -Dsonar.host.url=https://sonarqube.devopseasylearning.uk \
-                      -Dsonar.login=${SONARQUBE_TOKEN}
-                    '''
+                script {
+                    docker.image('sonarsource/sonar-scanner-cli:latest').inside {
+                        sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=carl-project \
+                          -Dsonar.host.url=https://sonarqube.devopseasylearning.uk \
+                          -Dsonar.login=${SONARQUBE_TOKEN}
+                        '''
+                    }
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            echo 'This will run after every build, regardless of the build result'
-        }
-        success {
-            echo 'Build succeeded!'
-        }
-        failure {
-            echo 'Build failed!'
-        }
-        unstable {
-            echo 'Build is unstable!'
         }
     }
 }
