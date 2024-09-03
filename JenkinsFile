@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'master' // Use the master agent for the entire pipeline
+        label 'master' // Ensure the 'master' node is available and correctly labeled
     }
 
     environment {
