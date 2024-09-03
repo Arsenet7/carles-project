@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         GIT_REPO = 'https://github.com/Arsenet7/carles-project.git'
-        BRANCH_NAME = 'arsene'  // Updated branch name
+        BRANCH_NAME = 'main'  // Updated branch name
     }
 
     stages {
