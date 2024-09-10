@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carles-project-deployment
+  labels:
+    app: carles-project
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: carles-project
+  template:
+    metadata:
+      labels:
+        app: carles-project
+    spec:
+      containers:
+      - name: carles-project-container
+        image: s5carles/carles-project
+        ports:
+        - containerPort: 80
+     
